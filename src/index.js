@@ -1,3 +1,6 @@
+/**
+ * @author Marc Perez <info@marcperez.cat>
+ */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Chart from './chart';
@@ -16,7 +19,7 @@ class WaterfallBarChart extends Component {
   }
 
   /**
-	 * Get the chart width picking the minimum value between options.width props or parent width
+	 * Get the chart width picking the minimum value between options.width props if defined or parent width
 	 * @returns {Number}
 	 */
   getChartWidth() {
