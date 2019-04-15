@@ -4,6 +4,9 @@ import Chart from './chart';
 import windowSize from 'react-window-size';
 import WaterfallBarChartWrapper from './waterfallBarChartWrapper.style';
 
+/**
+ * A component that renders a waterfall bar chart style
+ */
 class WaterfallBarChart extends Component {
   constructor(props) {
     super(props);
@@ -12,6 +15,10 @@ class WaterfallBarChart extends Component {
     this.chartId = `chart_${new Date().getTime()}`;
   }
 
+  /**
+	 * Get the chart width picking the minimum value between options.width props or parent width
+	 * @returns {Number}
+	 */
   getChartWidth() {
     const { options={} } = this.props;
     const parentWidth = document.getElementById(`${this.chartId}_container`).offsetWidth;
