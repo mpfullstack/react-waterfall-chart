@@ -23,7 +23,7 @@ class WaterfallBarChart extends Component {
 	 * @returns {Number}
 	 */
   getChartWidth() {
-    const { options={} } = this.props;
+    const { options = {} } = this.props;
     const parentWidth = document.getElementById(`${this.chartId}_container`).offsetWidth;
     if( options.width )
       return Math.min(options.width, parentWidth);
@@ -32,13 +32,12 @@ class WaterfallBarChart extends Component {
   }
 
   componentDidMount() {
-    const { data, tickFormat, valuesFormat } = this.props;
+    const { data, options = {} } = this.props;
+
     this.chart = new Chart({
       id: this.chartId,
-      width: this.getChartWidth(),
       data,
-      tickFormat,
-      valuesFormat
+      options: Object.assign({}, options, {width: this.getChartWidth()})
     });
     this.chart.render();
   }
@@ -55,7 +54,7 @@ class WaterfallBarChart extends Component {
   }
 
   render() {
-    const { options={} } = this.props;
+    const { options = {} } = this.props;
     return (
       <WaterfallBarChartWrapper id={`${this.chartId}_container`} width={options.width ? `${options.width}px` : 'none'}>
         <svg className={this.chartId}></svg>
@@ -66,7 +65,7 @@ class WaterfallBarChart extends Component {
 
 WaterfallBarChart.propTypes = {
   options: PropTypes.object,
-  data: PropTypes.object.isRequired
+  data: PropTypes.array.isRequired
 }
 
 export default windowSize(WaterfallBarChart);

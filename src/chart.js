@@ -8,11 +8,11 @@ const ASPECT_RATIO = 5/6;
 class Chart {
   constructor(params) {
     this.id = params.id;
-    this.width = params.width;
-    this.height = this.getChartHeight();
     this.data = params.data;
-    this.tickFormat = params.tickFormat;
-    this.valuesFormat = params.valuesFormat;
+    this.width = params.options.width;
+    this.height = this.getChartHeight();
+    this.tickFormat = params.options.tickFormat;
+    this.valuesFormat = params.options.valuesFormat;
   }
 
   update(data, width) {
@@ -78,6 +78,8 @@ class Chart {
       .attr("class", "y axis")
       .call(yAxis);
 
+    // For each item in data append a g.bar element
+    const totalItems = this.data.length;
     const bar = chart.selectAll(".bar")
       .data(this.data)
       .enter().append("g")
@@ -85,12 +87,14 @@ class Chart {
       .attr('style', d => d.color ? `fill:${d.color};` : '')
       .attr("transform", d => "translate(" + x(d.name) + ",0)");
 
+    // Render the bars
     bar
       .append("rect")
       .attr("y", d => y( Math.max(d.start, d.end) ))
       .attr("height", d => Math.abs( y(d.start) - y(d.end) ))
       .attr("width", x.bandwidth());
 
+    // Render the values on top of bars
     bar
       .append("text")
       .attr("x", x.bandwidth() / 2)
@@ -111,6 +115,7 @@ class Chart {
           return d.end - d.start;
       });
 
+    // Render the dashed lines
     bar
       .filter((d,i) => i < this.data.length-1)
       .append("line")
