@@ -13,6 +13,7 @@ class Chart {
     this.height = this.getChartHeight();
     this.tickFormat = params.options.tickFormat;
     this.valuesFormat = params.options.valuesFormat;
+    this.type = params.options.type || 'cumulative';
   }
 
   update(data, width) {
