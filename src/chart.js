@@ -1,23 +1,23 @@
 import { select } from 'd3-selection';
 import { scaleBand, scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
-import { max } from 'd3-array';
+import { max, min } from 'd3-array';
 
 const ASPECT_RATIO = 5/6;
 
 class Chart {
   constructor(params) {
     this.id = params.id;
-    this.data = params.data;
     this.width = params.options.width;
     this.height = this.getChartHeight();
     this.tickFormat = params.options.tickFormat;
     this.valuesFormat = params.options.valuesFormat;
     this.type = params.options.type || 'cumulative';
+    this.data = this.adaptData(params.data);
   }
 
   update(data, width) {
-    this.data = data;
+    this.data = this.adaptData(data);
     this.width = width || this.width;
     this.height = this.getChartHeight();
     this.empty();
@@ -34,6 +34,56 @@ class Chart {
 
   destroy() {
     select(`.${this.id}`).remove();
+  }
+
+  adaptData(data) {
+    /*
+    Cumulative data type
+    {
+      name: 'C',
+      value: '150',
+      class: 'planned',
+      color: 'rgb(0, 153, 198)'
+    }
+    */
+    /*
+    Custom data type
+    {
+      name: 'C',
+      value: '150',
+      class: 'planned',
+      color: 'rgb(0, 153, 198)',
+      start: 0,
+      end: 150
+    }
+    */
+    if( this.type === 'cumulative' ) {
+      const adaptedData = data.reduce((accumulator, item, i) => {
+        const sum = accumulator.sum + item.value;
+        const adaptedItem = Object.assign({}, item, {
+          start: accumulator.sum,
+          end: accumulator.sum + item.value
+        });
+        //TODO: Assign right color based on positive or negative value
+        accumulator.sum = sum;
+        accumulator.items.push(adaptedItem);
+        return accumulator;
+      }, {
+        sum: 0,
+        items: []
+      });
+      adaptedData.items.push({
+        name: 'Total',
+        value: adaptedData.sum,
+        class: 'total',
+        color: 'green',
+        start: 0,
+        end: adaptedData.sum
+      });
+      return adaptedData.items;
+    } else {
+      return data;
+    }
   }
 
   render() {
@@ -66,7 +116,9 @@ class Chart {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     x.domain(this.data.map(d => d.name));
-    y.domain([0, max(this.data, d =>d.end)]);
+    const minDomain = min([{end: 0}, ...this.data], d => d.end);
+    const maxDomain = max(this.data, d => d.end);
+    y.domain([minDomain, maxDomain]);
 
     chart
       .append("g")
@@ -80,7 +132,6 @@ class Chart {
       .call(yAxis);
 
     // For each item in data append a g.bar element
-    const totalItems = this.data.length;
     const bar = chart.selectAll(".bar")
       .data(this.data)
       .enter().append("g")
@@ -101,7 +152,7 @@ class Chart {
       .attr("x", x.bandwidth() / 2)
       .attr("y", d => {
         if( d.start > d.end ) {
-          if( d.end >= 0 && d.end <= 10 )
+          if( d.end >= minDomain && d.end <= (minDomain + 20) )
             return y(d.start) - 7;
           else
             return y(d.end) + 14;
