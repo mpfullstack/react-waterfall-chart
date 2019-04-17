@@ -37,26 +37,28 @@ class Chart {
   }
 
   adaptData(data) {
-    /*
-    Cumulative data type
+    /* Cumulative data type
+    -------------------------------------------------------
     {
-      name: 'C',
-      value: '150',
-      class: 'planned',
-      color: 'rgb(0, 153, 198)'
+      name: <String> (Required)
+      value: <Number> (Required)
+      class: <String>
+      color: <String>
     }
     */
-    /*
-    Custom data type
+
+    /* Custom data type
+    -------------------------------------------------------
     {
-      name: 'C',
-      value: '150',
-      class: 'planned',
-      color: 'rgb(0, 153, 198)',
-      start: 0,
-      end: 150
+      name: <String> (Required)
+      value: <Number> (Required)
+      class: <String>
+      color: <String>
+      start: <Number> (Required)
+      end: <Number> (Required)
     }
     */
+
     if( this.type === 'cumulative' ) {
       const adaptedData = data.reduce((accumulator, item, i) => {
         const sum = accumulator.sum + item.value;
