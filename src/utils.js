@@ -1,4 +1,4 @@
-export const shallowEqual = (objA: mixed, objB: mixed): boolean => {
+export const shallowEqual = (objA, objB) => {
   if (objA === objB) {
     return true;
   }
