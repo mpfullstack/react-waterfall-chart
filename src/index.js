@@ -3,8 +3,9 @@
  */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Chart from './chart';
 import windowSize from 'react-window-size';
+import Chart from './chart';
+import { shallowEqual } from './utils'
 import WaterfallBarChartWrapper from './waterfallBarChartWrapper.style';
 
 /**
@@ -16,6 +17,7 @@ class WaterfallBarChart extends Component {
     this.getChartWidth = this.getChartWidth.bind(this);
     this.chart = null;
     this.chartId = `chart_${new Date().getTime()}`;
+    this.width = null;
   }
 
   /**
@@ -25,15 +27,16 @@ class WaterfallBarChart extends Component {
   getChartWidth() {
     const { options = {} } = this.props;
     const parentWidth = document.getElementById(`${this.chartId}_container`).offsetWidth;
-    if( options.width )
-      return Math.min(options.width, parentWidth);
-    else
-      return parentWidth;
+    if( options.width ) {
+      this.width = Math.min(options.width, parentWidth);
+    } else {
+      this.width = parentWidth;
+    }
+    return this.width;
   }
 
   componentDidMount() {
     const { data, options = {} } = this.props;
-
     this.chart = new Chart({
       id: this.chartId,
       data,
@@ -42,9 +45,20 @@ class WaterfallBarChart extends Component {
     this.chart.render();
   }
 
-  componentDidUpdate() {
-    const { data } = this.props;
-    this.chart.update(data, this.getChartWidth());
+  componentDidUpdate(prevProps, prevState) {
+    const { data, options } = this.props;
+    const previousWidth = this.width;
+    const width = this.getChartWidth();
+    // Avoid unnecessary renders by checking for data, options and width changes
+    if(
+      !shallowEqual(data, prevProps.data)
+      ||
+      !shallowEqual(options, prevProps.options)
+      ||
+      previousWidth !== width
+    ) {
+      this.chart.update({data, options, width});
+    }
   }
 
   componentWillUnmount() {
