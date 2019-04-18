@@ -16,19 +16,12 @@ class Chart {
     this.data = this.adaptData(params.data);
   }
 
-  update({data, options, width}) {
-    this.updateOptions(options);
+  update(data, width) {
+    this.data = this.adaptData(data);
     this.width = width || this.width;
     this.height = this.getChartHeight();
-    this.data = this.adaptData(data);
     this.empty();
     this.render();
-  }
-
-  updateOptions(options) {
-    this.tickFormat = options.tickFormat || this.tickFormat;
-    this.valuesFormat = options.valuesFormat || this.valuesFormat;
-    this.type = options.type || this.type;
   }
 
   getChartHeight() {
