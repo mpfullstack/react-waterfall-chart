@@ -8,27 +8,27 @@ const ASPECT_RATIO = 5/6;
 class Chart {
   constructor(params) {
     this.id = params.id;
-    this.width = params.options.width;
-    this.height = this.getChartHeight();
-    this.tickFormat = params.options.tickFormat;
-    this.valuesFormat = params.options.valuesFormat;
-    this.type = params.options.type || 'cumulative';
+    this.setOptions(params.options);
     this.data = this.adaptData(params.data);
   }
 
   update({data, options, width}) {
-    this.updateOptions(options);
-    this.width = width || this.width;
-    this.height = this.getChartHeight();
+    this.setOptions(Object.assign({}, options, {width}));
     this.data = this.adaptData(data);
     this.empty();
     this.render();
   }
 
-  updateOptions(options) {
+  setOptions(options) {
+    this.width = options.width || this.width;
     this.tickFormat = options.tickFormat || this.tickFormat;
     this.valuesFormat = options.valuesFormat || this.valuesFormat;
-    this.type = options.type || this.type;
+    this.type = options.type || this.type || 'cumulative';
+    this.defaultIncrementColor = options.defaultIncrementColor || '#52A94E';
+    this.defaultDecrementColor = options.defaultDecrementColor || '#E05E46';
+    this.defaultTotalColor = options.defaultTotalColor || '#4273DC';
+    this.cumulativeTotalLabel = options.cumulativeTotalLabel || 'Total';
+    this.height = this.getChartHeight();
   }
 
   getChartHeight() {
@@ -74,6 +74,12 @@ class Chart {
           end: accumulator.sum + item.value
         });
         //TODO: Assign right color based on positive or negative value
+        if( !adaptedItem.color ) {
+          if( adaptedItem.value < 0 )
+            adaptedItem.color = this.defaultDecrementColor;
+          else
+            adaptedItem.color = this.defaultIncrementColor;
+        }
         accumulator.sum = sum;
         accumulator.items.push(adaptedItem);
         return accumulator;
@@ -82,10 +88,10 @@ class Chart {
         items: []
       });
       adaptedData.items.push({
-        name: 'Total',
+        name: this.cumulativeTotalLabel,
         value: adaptedData.sum,
         class: 'total',
-        color: 'green',
+        color: this.defaultTotalColor,
         start: 0,
         end: adaptedData.sum
       });
@@ -171,7 +177,7 @@ class Chart {
       })
       .text(d => {
         if( this.valuesFormat instanceof Function )
-          return this.valuesFormat(d.end - d.start);
+          return this.valuesFormat(d.end - d.start, d);
         else
           return d.end - d.start;
       });

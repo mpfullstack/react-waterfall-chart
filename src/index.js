@@ -22,7 +22,7 @@ class WaterfallBarChart extends Component {
 
   /**
 	 * Get the chart width picking the minimum value between options.width props if defined or parent width
-	 * @returns {Number}
+	 * @returns {number}
 	 */
   getChartWidth() {
     const { options = {} } = this.props;
@@ -77,8 +77,28 @@ class WaterfallBarChart extends Component {
   }
 }
 
+/**
+* The component prop types.
+*/
 WaterfallBarChart.propTypes = {
+  /**
+  * The chart options.
+  * @prop {object} options - The object containting the chart options.
+  * @prop {number} options.width - The chart width.
+  * @prop {string} options.type [custom|cumulative] - The type of the chart data.
+  * @prop {string} options.defaultIncrementColor - The bar color used by default when value is positive.
+  * @prop {string} options.defaultDecrementColor - The bar color used by default when value is negative.
+  * @prop {string} options.defaultTotalColor - The bar color used by default in the cumulative total bar.
+  * @prop {string} options.cumulativeTotalLabel - The text used in the x axis label for the cumulative total bar.
+  * @prop {function(number)} options.tickFormat - A callback function to format the y axis values. It receives the
+  * number of the y axis tick.
+  * @prop {function(number, object)} options.valuesFormat - A callback function to format the chart bar values. It
+  * receives the value as first arg and the data item as second arg.
+  */
   options: PropTypes.object,
+  /**
+  * The chart data.
+  */
   data: PropTypes.array.isRequired
 }
 
