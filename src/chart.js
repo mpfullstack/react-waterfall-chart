@@ -66,20 +66,18 @@ class Chart {
     }
     */
 
+    // Create a function getBarColor that will return the proper bar color based on item value
+    const getBarColor = createGetBarColor(this.defaultDecrementColor, this.defaultIncrementColor);
+
+    let adaptedData;
     if( this.type === 'cumulative' ) {
-      const adaptedData = data.reduce((accumulator, item, i) => {
+      adaptedData = data.reduce((accumulator, item, i) => {
         const sum = accumulator.sum + item.value;
         const adaptedItem = Object.assign({}, item, {
           start: accumulator.sum,
-          end: accumulator.sum + item.value
+          end: accumulator.sum + item.value,
+          color: getBarColor(item)
         });
-        //TODO: Assign right color based on positive or negative value
-        if( !adaptedItem.color ) {
-          if( adaptedItem.value < 0 )
-            adaptedItem.color = this.defaultDecrementColor;
-          else
-            adaptedItem.color = this.defaultIncrementColor;
-        }
         accumulator.sum = sum;
         accumulator.items.push(adaptedItem);
         return accumulator;
@@ -95,10 +93,33 @@ class Chart {
         start: 0,
         end: adaptedData.sum
       });
-      return adaptedData.items;
     } else {
-      return data;
+      adaptedData = data.reduce((accumulator, item, i) => {
+        const adaptedItem = Object.assign({}, item, {
+          color: getBarColor(item)
+        });
+        accumulator.items.push(adaptedItem);
+        return accumulator;
+      }, {
+        items: []
+      })
     }
+
+    // Return the right color based on positive or negative item value
+    function createGetBarColor(decrementColor, incrementColor) {
+      return item => {
+        if( !item.color ) {
+          if( item.value < 0 )
+            return decrementColor;
+          else
+            return incrementColor;
+        } else {
+          return item.color;
+        }
+      }
+    }
+
+    return adaptedData.items;
   }
 
   render() {
